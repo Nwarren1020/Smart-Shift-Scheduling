@@ -2,65 +2,827 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d1117" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smart Shift Scheduling</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js" defer></script>
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <div id="app" class="layout">
-    <header class="topbar">
+  <div class="app-container" id="app-container" style="display: none;">
+    <header>
+      <img src="https://img.icons8.com/external-kiranshastry-lineal-color-kiranshastry/64/undefined/external-clock-time-management-kiranshastry-lineal-color-kiranshastry.png" alt="Clock Icon" />
       <h1>Smart Shift Scheduling</h1>
-      <div class="org-section">
-        <label>Organization ID: <span id="orgIdDisplay">(loading)</span></label>
+      <div class="header-actions">
+        <button id="notificationBtn">🔔</button>
+        <button id="themeSwitcher">🌓</button>
+        <button id="logoutBtn">Logout</button>
       </div>
     </header>
 
-    <section class="panel" id="statusPanel"></section>
+    <main>
+      <section class="stats-panel">
+        <div class="stat-card">
+          <h2>Pending Swaps</h2>
+          <p id="pendingSwapsCount">0</p>
+        </div>
+        <div class="stat-card">
+          <h2>Open Shifts</h2>
+          <p id="openShiftsCount">0</p>
+        </div>
+        <div class="stat-card">
+          <h2>Coverage Rate</h2>
+          <p id="coverageRate">0%</p>
+        </div>
+      </section>
 
-    <section class="panel" id="controls">
-      <button id="reloadBtn">Reload data</button>
-      <button id="saveAvailBtn">Save availability</button>
-      <button id="seedScheduleBtn">Seed schedule</button>
-      <button id="publishScheduleBtn">Publish schedule</button>
-      <button id="aiScheduleBtn">AI schedule</button>
-      <button id="migrateBtn">Migrate from localStorage</button>
-    </section>
+      <section class="main-panels">
+        <div class="panel" id="employeePanel">
+          <h2>Employee</h2>
+          <div class="panel-grid">
+            <div class="panel-item">
+              <h3>Availability</h3>
+              <button class="openModalBtn" data-target="#availabilityModal">Manage</button>
+            </div>
+            <div class="panel-item">
+              <h3>My Shifts</h3>
+              <button class="openModalBtn" data-target="#scheduleModal">View</button>
+            </div>
+            <div class="panel-item">
+              <h3>Swap Request</h3>
+              <button class="openModalBtn" data-target="#swapModal">Propose</button>
+            </div>
+            <div class="panel-item">
+              <h3>Audit Trail</h3>
+              <button class="openModalBtn" data-target="#auditModal">Review</button>
+            </div>
+          </div>
+        </div>
 
-    <section class="panel" id="dataPanels">
-      <div>
-        <h2>Employees</h2>
-        <input id="newEmployeeName" type="text" placeholder="New employee name" aria-label="New employee name" />
-        <button id="addEmployeeBtn">Add employee</button>
-        <ul id="employees"></ul>
-      </div>
+        <div class="panel" id="managerPanel" style="display: none;">
+          <h2>Manager</h2>
+          <div class="panel-grid">
+            <div class="panel-item">
+              <h3>Team Calendar</h3>
+              <button class="openModalBtn" data-target="#teamCalendarModal">Open</button>
+            </div>
+            <div class="panel-item">
+              <h3>Approve Swaps</h3>
+              <button class="openModalBtn" data-target="#swapApprovalModal">Open</button>
+            </div>
+            <div class="panel-item">
+              <h3>Coverage Heatmap</h3>
+              <button class="openModalBtn" data-target="#coverageModal">Analyze</button>
+            </div>
+          </div>
+        </div>
 
-      <div>
-        <h2>Availability</h2>
-        <pre id="availability"></pre>
-      </div>
+        <div class="panel" id="ownerPanel" style="display: none;">
+          <h2>Owner</h2>
+          <div class="panel-grid">
+            <div class="panel-item">
+              <h3>Business Report</h3>
+              <button class="openModalBtn" data-target="#businessReportModal">View</button>
+            </div>
+            <div class="panel-item">
+              <h3>Billing</h3>
+              <button class="openModalBtn" data-target="#billingModal">Discount</button>
+            </div>
+            <div class="panel-item">
+              <h3>System Summary</h3>
+              <button class="openModalBtn" data-target="#systemSummaryModal">Open</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div>
-        <h2>Schedule</h2>
-        <pre id="schedule"></pre>
-      </div>
-
-      <div>
-        <h2>Swap Requests</h2>
-        <ul id="swaps"></ul>
-      </div>
-
-      <div>
-        <h2>Audit Log</h2>
-        <ul id="auditLog"></ul>
-      </div>
-    </section>
+      <section class="detailed-panels">
+        <div class="panel detail" id="availabilityPanel">
+          <h2>Detailed Availability</h2>
+          <ul id="availabilityList"></ul>
+          <button class="openModalBtn" data-target="#availabilityModal">Edit Availability</button>
+        </div>
+        <div class="panel detail" id="schedulePanel">
+          <h2>Weekly Shift Schedule</h2>
+          <div id="scheduleGrid" class="schedule-grid"></div>
+        </div>
+      </section>
+    </main>
   </div>
+
+  <!-- Login View -->
+  <div class="login-container" id="login-container">
+    <div class="login-card">
+      <h2>Smart Shift Scheduling</h2>
+      <div class="login-form">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Your username" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password" />
+
+        <label for="userType">Role</label>
+        <select id="userType">
+          <option value="employee">Employee</option>
+          <option value="admin">Manager</option>
+          <option value="owner">Owner</option>
+        </select>
+
+        <button id="loginBtn">Login</button>
+        <p id="loginError" class="error-message"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="accountModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#accountModal">×</span>
+      <h2>Account Overview</h2>
+      <p id="accountDetails"></p>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#profileModal">×</span>
+      <h2>Profile & Preferences</h2>
+      <p>Update your profile details. (Simulation-mode)</p>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#settingsModal">×</span>
+      <h2>System Settings</h2>
+      <p>General system settings and team options can be changed here.</p>
+    </div>
+  </div>
+
+  <div id="dayModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#dayModal">×</span>
+      <h2>Select Day and Time</h2>
+      <p>Pick a day to modify your shift availability.</p>
+    </div>
+  </div>
+
+  <div id="availabilityModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#availabilityModal">×</span>
+      <h2>Update Availability</h2>
+      <div class="availability-grid" id="availabilityForm"></div>
+      <button id="saveAvailabilityBtn">Save Availability</button>
+    </div>
+  </div>
+
+  <div id="employeeAddModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#employeeAddModal">×</span>
+      <h2>Add New Employee</h2>
+      <label for="newEmployeeName">Name</label>
+      <input type="text" id="newEmployeeName" placeholder="Type name" />
+      <label for="newEmployeeRole">Role</label>
+      <select id="newEmployeeRole">
+        <option value="employee">Employee</option>
+        <option value="admin">Manager</option>
+        <option value="owner">Owner</option>
+      </select>
+      <button id="saveNewEmployeeBtn">Add Employee</button>
+    </div>
+  </div>
+
+  <div id="swapModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#swapModal">×</span>
+      <h2>Request a Shift Swap</h2>
+      <label for="swapWithEmployee">Swap with</label>
+      <select id="swapWithEmployee"></select>
+      <label for="swapDate">Date</label>
+      <input type="date" id="swapDate" />
+      <button id="requestSwapBtn">Request Swap</button>
+    </div>
+  </div>
+
+  <div id="billingModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#billingModal">×</span>
+      <h2>Billing & Discounts (Owner)</h2>
+      <p>Apply discounts and check your billing usage.</p>
+    </div>
+  </div>
+
+  <div id="auditModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#auditModal">×</span>
+      <h2>Audit Trail</h2>
+      <ul id="auditLogs"></ul>
+    </div>
+  </div>
+
+  <div id="teamCalendarModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#teamCalendarModal">×</span>
+      <h2>Team Calendar</h2>
+      <p>View adjustable team shifts and time-offs.</p>
+    </div>
+  </div>
+
+  <div id="swapApprovalModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#swapApprovalModal">×</span>
+      <h2>Swap Approvals</h2>
+      <ul id="swapRequestsList"></ul>
+    </div>
+  </div>
+
+  <div id="coverageModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#coverageModal">×</span>
+      <h2>Coverage Heatmap</h2>
+      <p>Coverage insights and risk levels.</p>
+    </div>
+  </div>
+
+  <div id="businessReportModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#businessReportModal">×</span>
+      <h2>Business Reports</h2>
+      <p>Key metrics and optimization suggestions.</p>
+    </div>
+  </div>
+
+  <div id="systemSummaryModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn" data-target="#systemSummaryModal">×</span>
+      <h2>System Summary</h2>
+      <p>Performance and resource pool summary.</p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const defaultUsers = [
+      { username: 'employee', password: 'employee', role: 'employee' },
+      { username: 'manager', password: 'manager', role: 'admin' },
+      { username: 'owner', password: 'owner', role: 'owner' },
+    ];
+
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const timeSlots = ['Morning', 'Afternoon', 'Evening'];
+
+    let currentUser = null;
+    let availabilityData = JSON.parse(localStorage.getItem('availabilityData')) || {};
+    let scheduleData = JSON.parse(localStorage.getItem('scheduleData')) || [];
+    let swapRequests = JSON.parse(localStorage.getItem('swapRequests')) || [];
+    let auditTrail = JSON.parse(localStorage.getItem('auditTrail')) || [];
+    let theme = localStorage.getItem('theme') || 'light';
+
+    const appContainer = document.getElementById('app-container');
+    const loginContainer = document.getElementById('login-container');
+
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const userTypeEl = document.getElementById('userType');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    const pendingSwapsCount = document.getElementById('pendingSwapsCount');
+    const openShiftsCount = document.getElementById('openShiftsCount');
+    const coverageRate = document.getElementById('coverageRate');
+
+    const employeePanel = document.getElementById('employeePanel');
+    const managerPanel = document.getElementById('managerPanel');
+    const ownerPanel = document.getElementById('ownerPanel');
+
+    const availabilityList = document.getElementById('availabilityList');
+    const scheduleGrid = document.getElementById('scheduleGrid');
+
+    const accountDetails = document.getElementById('accountDetails');
+    const swapWithEmployee = document.getElementById('swapWithEmployee');
+    const swapDate = document.getElementById('swapDate');
+
+    const auditLogs = document.getElementById('auditLogs');
+    const swapRequestsList = document.getElementById('swapRequestsList');
+
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const availabilityForm = document.getElementById('availabilityForm');
+    const saveAvailabilityBtn = document.getElementById('saveAvailabilityBtn');
+
+    const newEmployeeName = document.getElementById('newEmployeeName');
+    const newEmployeeRole = document.getElementById('newEmployeeRole');
+    const saveNewEmployeeBtn = document.getElementById('saveNewEmployeeBtn');
+
+    const requestSwapBtn = document.getElementById('requestSwapBtn');
+
+    const modals = document.querySelectorAll('.modal');
+    const openModalBtns = document.querySelectorAll('.openModalBtn');
+    const closeModalBtns = document.querySelectorAll('.closeBtn');
+
+    const scheduleDataStorageKey = 'unifiedScheduleData';
+
+    const employees = JSON.parse(localStorage.getItem('employees')) || [
+      { id: 1, name: 'Alice', role: 'employee' },
+      { id: 2, name: 'Bob', role: 'employee' },
+      { id: 3, name: 'Charlie', role: 'admin' },
+      { id: 4, name: 'Dana', role: 'owner' },
+    ];
+
+    const wipeData = false;
+
+    if (wipeData) {
+      localStorage.clear();
+      location.reload();
+    }
+
+    if (localStorage.getItem('employeeIndex')) {
+      document.getElementById('selectedEmployeeIndex').value = localStorage.getItem('employeeIndex');
+    }
+
+    function applyTheme() {
+      document.body.className = theme;
+      localStorage.setItem('theme', theme);
+      themeSwitcher.textContent = theme === 'light' ? '🌙' : '☀️';
+    }
+
+    function getRoleSpecificData() {
+      const role = currentUser.role;
+      employeePanel.style.display = role === 'employee' ? 'block' : 'none';
+      managerPanel.style.display = role === 'admin' ? 'block' : 'none';
+      ownerPanel.style.display = role === 'owner' ? 'block' : 'none';
+    }
+
+    function openModal(modalId) {
+      const modal = document.querySelector(modalId);
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.querySelector(modalId);
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    function updateStatusCounts() {
+      pendingSwapsCount.textContent = swapRequests.length;
+      const openShifts = scheduleData.filter((slot) => !slot.assignedTo).length;
+      openShiftsCount.textContent = openShifts;
+      const coveredShifts = scheduleData.length - openShifts;
+      coverageRate.textContent = scheduleData.length ? `${Math.round((coveredShifts / scheduleData.length) * 100)}%` : '0%';
+    }
+
+    function renderAvailability() {
+      availabilityList.innerHTML = '';
+      const currentUserAvailability = availabilityData[currentUser.username] || {};
+
+      daysOfWeek.forEach((day) => {
+        const li = document.createElement('li');
+        li.textContent = `${day}: ${currentUserAvailability[day] || 'Not set'}`;
+        availabilityList.appendChild(li);
+      });
+    }
+
+    function renderSchedule() {
+      scheduleGrid.innerHTML = '';
+
+      const userSchedule = scheduleData.filter((shift) => shift.assignedTo === currentUser.username || currentUser.role !== 'employee');
+
+      if (userSchedule.length === 0) {
+        scheduleGrid.textContent = 'No shifts found. Generate a schedule in the manager panel for the best planning.';
+        return;
+      }
+
+      userSchedule.forEach((shift) => {
+        const shiftDiv = document.createElement('div');
+        shiftDiv.className = 'shift-card';
+        shiftDiv.innerHTML = `<strong>${shift.day} ${shift.time}</strong><br/>${shift.assignedTo || 'Open'} (${shift.role})`;
+        scheduleGrid.appendChild(shiftDiv);
+      });
+    }
+
+    function updateSwapRequestsForAdmin() {
+      swapRequestsList.innerHTML = '';
+      swapRequests.forEach((request, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${request.from} requested swap on ${request.day} ${request.time} with ${request.to}`;
+
+        const approveBtn = document.createElement('button');
+        approveBtn.textContent = 'Approve';
+        approveBtn.onclick = () => handleSwapDecision(index, true);
+
+        const rejectBtn = document.createElement('button');
+        rejectBtn.textContent = 'Reject';
+        rejectBtn.onclick = () => handleSwapDecision(index, false);
+
+        li.appendChild(approveBtn);
+        li.appendChild(rejectBtn);
+
+        swapRequestsList.appendChild(li);
+      });
+    }
+
+    function handleSwapDecision(index, approved) {
+      const request = swapRequests[index];
+      const logMessage = `${approved ? 'Approved' : 'Rejected'} swap request from ${request.from} to ${request.to} for ${request.day} ${request.time}`;
+      auditTrail.push(logMessage);
+      auditLogs.innerHTML += `<li>${logMessage}</li>`;
+
+      if (approved) {
+        const fromShift = scheduleData.find((slot) => slot.assignedTo === request.from && slot.day === request.day && slot.time === request.time);
+        const toShift = scheduleData.find((slot) => slot.assignedTo === request.to && slot.day === request.day && slot.time === request.time);
+
+        if (fromShift && toShift) {
+          [fromShift.assignedTo, toShift.assignedTo] = [toShift.assignedTo, fromShift.assignedTo];
+          localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+          renderSchedule();
+        }
+      }
+      swapRequests.splice(index, 1);
+      localStorage.setItem('swapRequests', JSON.stringify(swapRequests));
+      updateStatusCounts();
+      updateSwapRequestsForAdmin();
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+    }
+
+    function renderAuditTrail() {
+      auditLogs.innerHTML = '';
+      auditTrail.forEach((log) => {
+        const li = document.createElement('li');
+        li.textContent = log;
+        auditLogs.appendChild(li);
+      });
+    }
+
+    function generateScheduleBasedOnAvailability() {
+      scheduleData = [];
+      employees.forEach((employee) => {
+        const userAvailability = availabilityData[employee.name] || {};
+        daysOfWeek.forEach((day) => {
+          timeSlots.forEach((time) => {
+            if (userAvailability[day] && userAvailability[day].includes(time)) {
+              scheduleData.push({ day, time, assignedTo: employee.name, role: employee.role });
+            }
+          });
+        });
+      });
+
+      localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+      updateStatusCounts();
+      renderSchedule();
+    }
+
+    function initAvailabilityForm() {
+      availabilityForm.innerHTML = '';
+      daysOfWeek.forEach((day) => {
+        const dayRow = document.createElement('div');
+        dayRow.className = 'availability-row';
+
+        const dayLabel = document.createElement('label');
+        dayLabel.textContent = day;
+        dayRow.appendChild(dayLabel);
+
+        timeSlots.forEach((time) => {
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.id = `${day}-${time}`;
+          input.dataset.day = day;
+          input.dataset.time = time;
+
+          const label = document.createElement('label');
+          label.textContent = time;
+          label.htmlFor = input.id;
+
+          dayRow.appendChild(input);
+          dayRow.appendChild(label);
+        });
+
+        availabilityForm.appendChild(dayRow);
+      });
+
+      const savedAvailability = availabilityData[currentUser.username] || {};
+      daysOfWeek.forEach((day) => {
+        (savedAvailability[day] || []).forEach((time) => {
+          const input = document.getElementById(`${day}-${time}`);
+          if (input) input.checked = true;
+        });
+      });
+    }
+
+    function saveAvailability() {
+      const newAvailability = {};
+      daysOfWeek.forEach((day) => {
+        newAvailability[day] = [];
+        timeSlots.forEach((time) => {
+          const input = document.getElementById(`${day}-${time}`);
+          if (input && input.checked) {
+            newAvailability[day].push(time);
+          }
+        });
+      });
+
+      availabilityData[currentUser.username] = newAvailability;
+      localStorage.setItem('availabilityData', JSON.stringify(availabilityData));
+      auditTrail.push(`${currentUser.username} updated availability.`);
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      renderAvailability();
+      closeModal('#availabilityModal');
+      generateScheduleBasedOnAvailability();
+    }
+
+    function showAccountOverview() {
+      accountDetails.innerHTML = `<strong>User:</strong> ${currentUser.username}<br/><strong>Role:</strong> ${currentUser.role}`;
+      openModal('#accountModal');
+    }
+
+    function setupEmployeeSelector() {
+      swapWithEmployee.innerHTML = '';
+      employees
+        .filter((emp) => emp.username !== currentUser.username)
+        .forEach((employee) => {
+          const option = document.createElement('option');
+          option.value = employee.name;
+          option.textContent = `${employee.name} (${employee.role})`;
+          swapWithEmployee.appendChild(option);
+        });
+    }
+
+    function handleSwapRequest() {
+      const selectedEmployee = swapWithEmployee.value;
+      const selectedDate = swapDate.value;
+      if (!selectedEmployee || !selectedDate) {
+        alert('Please select an employee and date');
+        return;
+      }
+
+      const dayName = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+      const timeSlot = timeSlots[Math.floor(Math.random() * timeSlots.length)];
+
+      swapRequests.push({ from: currentUser.username, to: selectedEmployee, day: dayName, time: timeSlot });
+      localStorage.setItem('swapRequests', JSON.stringify(swapRequests));
+      auditTrail.push(`${currentUser.username} requested a swap with ${selectedEmployee} for ${dayName} ${timeSlot}.`);
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      updateStatusCounts();
+      updateSwapRequestsForAdmin();
+      closeModal('#swapModal');
+    }
+
+    function addEmployee() {
+      const name = newEmployeeName.value.trim();
+      const role = newEmployeeRole.value;
+      if (name === '') {
+        alert('Name cannot be empty');
+        return;
+      }
+
+      employees.push({ id: employees.length + 1, name, role });
+      localStorage.setItem('employees', JSON.stringify(employees));
+      auditTrail.push(`New employee added: ${name} (${role})`);
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      newEmployeeName.value = '';
+      newEmployeeRole.value = 'employee';
+      closeModal('#employeeAddModal');
+      renderAvailability();
+      renderSchedule();
+    }
+
+    function renderDashboard() {
+      updateStatusCounts();
+      renderAvailability();
+      renderSchedule();
+      renderAuditTrail();
+      updateSwapRequestsForAdmin();
+    }
+
+    function loginUser() {
+      const username = usernameEl.value.trim();
+      const password = passwordEl.value;
+      const userType = userTypeEl.value;
+
+      const user = defaultUsers.find(
+        (u) => u.username === username && u.password === password && u.role === userType
+      );
+
+      if (!user) {
+        loginError.textContent = 'Invalid username, password, or role.';
+        return;
+      }
+
+      currentUser = user;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      loginContainer.style.display = 'none';
+      appContainer.style.display = 'block';
+      getRoleSpecificData();
+      renderDashboard();
+      setupEmployeeSelector();
+      applyTheme();
+      auditTrail.push(`${currentUser.username} logged in as ${currentUser.role}`);
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+    }
+
+    function createEnergyEfficientSchedule() {
+      const requiredSlots = 30;
+      const scheduled = [];
+
+      const shuffledEmployees = [...employees].sort(() => Math.random() - 0.5);
+      for (let i = 0; i < requiredSlots; i++) {
+        const day = daysOfWeek[i % daysOfWeek.length];
+        const time = timeSlots[Math.floor((i % timeSlots.length) / 1)];
+        const employee = shuffledEmployees[i % shuffledEmployees.length];
+
+        scheduled.push({ day, time, assignedTo: employee.name, role: employee.role });
+      }
+
+      scheduleData = scheduled;
+      localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+      renderSchedule();
+      updateStatusCounts();
+      auditTrail.push('Energy-efficient schedule created.');
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+    }
+
+    function sortEmployeesByCoverage() {
+      const coverageRate = employees.map((employee) => {
+        const employeeShifts = scheduleData.filter((shift) => shift.assignedTo === employee.name);
+        return { employee: employee.name, coverage: employeeShifts.length };
+      });
+
+      coverageRate.sort((a, b) => b.coverage - a.coverage);
+      return coverageRate;
+    }
+
+    function showSortingInsights() {
+      const sorted = sortEmployeesByCoverage();
+      const result = sorted.map((item) => `${item.employee}: ${item.coverage} shifts`).join(', ');
+      alert(`Employee coverage insights:\n${result}`);
+      auditTrail.push('Coverage insight checked.');
+      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+    }
+
+    function setupInitialData() {
+      if (!localStorage.getItem('currentUser')) {
+        localStorage.setItem('currentUser', JSON.stringify(null));
+      }
+      if (!localStorage.getItem('availabilityData')) {
+        localStorage.setItem('availabilityData', JSON.stringify({}));
+      }
+      if (!localStorage.getItem('scheduleData')) {
+        localStorage.setItem('scheduleData', JSON.stringify([]));
+      }
+      if (!localStorage.getItem('swapRequests')) {
+        localStorage.setItem('swapRequests', JSON.stringify([]));
+      }
+      if (!localStorage.getItem('auditTrail')) {
+        localStorage.setItem('auditTrail', JSON.stringify([]));
+      }
+      if (!localStorage.getItem('employees')) {
+        localStorage.setItem('employees', JSON.stringify(employees));
+      }
+      applyTheme();
+    }
+
+    closeModalBtns.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        const target = event.target.dataset.target;
+        closeModal(target);
+      });
+    });
+
+    openModalBtns.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        const target = event.target.dataset.target;
+        openModal(target);
+      });
+    });
+
+    saveAvailabilityBtn.addEventListener('click', saveAvailability);
+
+    requestSwapBtn.addEventListener('click', handleSwapRequest);
+
+    newEmployeeName.addEventListener('input', () => {
+      saveNewEmployeeBtn.disabled = newEmployeeName.value.trim() === '';
+    });
+
+    saveNewEmployeeBtn.addEventListener('click', addEmployee);
+
+    themeSwitcher.addEventListener('click', () => {
+      theme = theme === 'light' ? 'dark' : 'light';
+      applyTheme();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('currentUser');
+      currentUser = null;
+      appContainer.style.display = 'none';
+      loginContainer.style.display = 'flex';
+      usernameEl.value = '';
+      passwordEl.value = '';
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', loginUser);
+
+    setupInitialData();
+
+    function initAutoLogin() {
+      const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (savedUser && savedUser.username) {
+        currentUser = savedUser;
+        loginContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        getRoleSpecificData();
+        renderDashboard();
+        setupEmployeeSelector();
+      }
+    }
+
+    document.getElementById('accountModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('accountModal')) {
+        closeModal('#accountModal');
+      }
+    });
+
+    document.getElementById('profileModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('profileModal')) {
+        closeModal('#profileModal');
+      }
+    });
+
+    document.getElementById('settingsModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('settingsModal')) {
+        closeModal('#settingsModal');
+      }
+    });
+
+    document.getElementById('dayModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('dayModal')) {
+        closeModal('#dayModal');
+      }
+    });
+
+    document.getElementById('availabilityModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('availabilityModal')) {
+        closeModal('#availabilityModal');
+      }
+    });
+
+    document.getElementById('employeeAddModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('employeeAddModal')) {
+        closeModal('#employeeAddModal');
+      }
+    });
+
+    document.getElementById('swapModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('swapModal')) {
+        closeModal('#swapModal');
+      }
+    });
+
+    document.getElementById('billingModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('billingModal')) {
+        closeModal('#billingModal');
+      }
+    });
+
+    document.getElementById('auditModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('auditModal')) {
+        closeModal('#auditModal');
+      }
+    });
+
+    document.getElementById('teamCalendarModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('teamCalendarModal')) {
+        closeModal('#teamCalendarModal');
+      }
+    });
+
+    document.getElementById('swapApprovalModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('swapApprovalModal')) {
+        closeModal('#swapApprovalModal');
+      }
+    });
+
+    document.getElementById('coverageModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('coverageModal')) {
+        closeModal('#coverageModal');
+      }
+    });
+
+    document.getElementById('businessReportModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('businessReportModal')) {
+        closeModal('#businessReportModal');
+      }
+    });
+
+    document.getElementById('systemSummaryModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('systemSummaryModal')) {
+        closeModal('#systemSummaryModal');
+      }
+    });
+
+    initAutoLogin();
+  </script>
 </body>
 </html>

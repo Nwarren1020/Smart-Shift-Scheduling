@@ -263,6 +263,7 @@
   <script>
     const defaultUsers = [
       { username: 'employee', password: 'employee', role: 'employee' },
+      { username: 'employee2', password: 'employee2', role: 'employee' },
       { username: 'manager', password: 'manager', role: 'admin' },
       { username: 'owner', password: 'owner', role: 'owner' },
     ];
@@ -323,10 +324,10 @@
     const scheduleDataStorageKey = 'unifiedScheduleData';
 
     const employees = JSON.parse(localStorage.getItem('employees')) || [
-      { id: 1, name: 'Alice', role: 'employee' },
-      { id: 2, name: 'Bob', role: 'employee' },
-      { id: 3, name: 'Charlie', role: 'admin' },
-      { id: 4, name: 'Dana', role: 'owner' },
+      { id: 1, username: 'employee', name: 'Alice', role: 'employee' },
+      { id: 2, username: 'employee2', name: 'Bob', role: 'employee' },
+      { id: 3, username: 'manager', name: 'Charlie', role: 'admin' },
+      { id: 4, username: 'owner', name: 'Dana', role: 'owner' },
     ];
 
     const wipeData = false;
@@ -351,6 +352,11 @@
       employeePanel.style.display = role === 'employee' ? 'block' : 'none';
       managerPanel.style.display = role === 'admin' ? 'block' : 'none';
       ownerPanel.style.display = role === 'owner' ? 'block' : 'none';
+    }
+
+    function getEmployeeName(username) {
+      const employee = employees.find((emp) => emp.username === username);
+      return employee ? employee.name : username;
     }
 
     function openModal(modalId) {
@@ -381,7 +387,8 @@
 
       daysOfWeek.forEach((day) => {
         const li = document.createElement('li');
-        li.textContent = `${day}: ${currentUserAvailability[day] || 'Not set'}`;
+        const dayValue = currentUserAvailability[day];
+        li.textContent = `${day}: ${Array.isArray(dayValue) && dayValue.length > 0 ? dayValue.join(', ') : 'Not set'}`;
         availabilityList.appendChild(li);
       });
     }
@@ -399,7 +406,8 @@
       userSchedule.forEach((shift) => {
         const shiftDiv = document.createElement('div');
         shiftDiv.className = 'shift-card';
-        shiftDiv.innerHTML = `<strong>${shift.day} ${shift.time}</strong><br/>${shift.assignedTo || 'Open'} (${shift.role})`;
+        const assignedName = shift.assignedTo ? getEmployeeName(shift.assignedTo) : 'Open';
+        shiftDiv.innerHTML = `<strong>${shift.day} ${shift.time}</strong><br/>${assignedName} (${shift.role})`;
         scheduleGrid.appendChild(shiftDiv);
       });
     }
@@ -460,11 +468,11 @@
     function generateScheduleBasedOnAvailability() {
       scheduleData = [];
       employees.forEach((employee) => {
-        const userAvailability = availabilityData[employee.name] || {};
+        const userAvailability = availabilityData[employee.username] || {};
         daysOfWeek.forEach((day) => {
           timeSlots.forEach((time) => {
             if (userAvailability[day] && userAvailability[day].includes(time)) {
-              scheduleData.push({ day, time, assignedTo: employee.name, role: employee.role });
+              scheduleData.push({ day, time, assignedTo: employee.username, role: employee.role });
             }
           });
         });
@@ -544,7 +552,7 @@
         .filter((emp) => emp.username !== currentUser.username)
         .forEach((employee) => {
           const option = document.createElement('option');
-          option.value = employee.name;
+          option.value = employee.username;
           option.textContent = `${employee.name} (${employee.role})`;
           swapWithEmployee.appendChild(option);
         });

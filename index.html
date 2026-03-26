@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Smart Shift Scheduling</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div id="app" class="layout">
+    <header class="topbar">
+      <h1>Smart Shift Scheduling</h1>
+      <div class="org-section">
+        <label>Organization ID: <span id="orgIdDisplay">(loading)</span></label>
+      </div>
+    </header>
+
+    <section class="panel" id="statusPanel"></section>
+
+    <section class="panel" id="controls">
+      <button id="reloadBtn">Reload data</button>
+      <button id="saveAvailBtn">Save availability</button>
+      <button id="seedScheduleBtn">Seed schedule</button>
+      <button id="publishScheduleBtn">Publish schedule</button>
+      <button id="aiScheduleBtn">AI schedule</button>
+      <button id="migrateBtn">Migrate from localStorage</button>
+    </section>
+
+    <section class="panel" id="dataPanels">
+      <div>
+        <h2>Employees</h2>
+        <input id="newEmployeeName" type="text" placeholder="New employee name" aria-label="New employee name" />
+        <button id="addEmployeeBtn">Add employee</button>
+        <ul id="employees"></ul>
+      </div>
+
+      <div>
+        <h2>Availability</h2>
+        <pre id="availability"></pre>
+      </div>
+
+      <div>
+        <h2>Schedule</h2>
+        <pre id="schedule"></pre>
+      </div>
+
+      <div>
+        <h2>Swap Requests</h2>
+        <ul id="swaps"></ul>
+      </div>
+
+      <div>
+        <h2>Audit Log</h2>
+        <ul id="auditLog"></ul>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,841 +1,1387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Shift Scheduling</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartShift - Employee Scheduling</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #888888;
+      --accent-gold: #ffd700;
+      --accent-silver: #c0c0c0;
+      --accent-bronze: #cd7f32;
+      --border-color: #333333;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 8px 12px rgba(0, 0, 0, 0.4);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand img {
+      width: 50px;
+      height: 50px;
+      filter: drop-shadow(0 0 10px var(--accent-gold));
+    }
+
+    .brand h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--accent-gold), var(--accent-silver));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .btn:hover {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-primary {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-silver);
+    }
+
+    .stats-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .stat-card h3 {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-card p {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .main-panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .panel {
+      background: var(--bg-secondary);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+      border-bottom: 2px solid var(--accent-gold);
+      padding-bottom: 10px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+    }
+
+    .panel-item {
+      background: var(--bg-tertiary);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .panel-item:hover {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+      transform: scale(1.05);
+    }
+
+    .panel-item h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .panel-item p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .detailed-panels {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+    }
+
+    .detail-panel {
+      background: var(--bg-secondary);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-panel h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+    }
+
+    .availability-list {
+      list-style: none;
+    }
+
+    .availability-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .shift-card {
+      background: var(--bg-tertiary);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .shift-card:hover {
+      background: var(--accent-silver);
+      color: var(--bg-primary);
+    }
+
+    .shift-card strong {
+      color: var(--accent-gold);
+    }
+
+    /* Login Styles */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(255, 0, 50, 0.16), transparent 42%),
+        linear-gradient(135deg, #050505 0%, #090909 70%);
+      color: #fff;
+    }
+
+    .login-card {
+      background: #030303;
+      border: 1px solid #ff0033;
+      box-shadow: 0 0 40px rgba(255, 0, 50, 0.3);
+      border-radius: 18px;
+      padding: 36px 32px;
+      width: min(100%, 420px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(135deg, rgba(255, 0, 60, 0.18), transparent 50%, rgba(255, 0, 60, 0.3));
+      pointer-events: none;
+      transform: rotate(25deg);
+    }
+
+    .login-card h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: 0.35rem;
+      text-transform: uppercase;
+      color: #ff0033;
+      text-shadow: 0 0 18px rgba(255, 0, 60, 0.8), 0 0 30px rgba(255, 0, 60, 0.35);
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card p.subtitle {
+      margin-bottom: 24px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.18rem;
+      text-transform: uppercase;
+      font-size: 0.87rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-tabs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-tab {
+      border: 1px solid rgba(255, 0, 60, 0.4);
+      border-radius: 8px;
+      padding: 10px 16px;
+      background: rgba(20, 0, 10, 0.65);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.1rem;
+    }
+
+    .login-tab.active {
+      border-color: #ff0033;
+      background: rgba(255, 0, 60, 0.2);
+      color: #ff0033;
+      text-shadow: 0 0 10px rgba(255, 0, 60, 0.6);
+    }
+
+    .login-form {
+      display: grid;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-form label {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .login-form input,
+    .login-form select {
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .login-form input:focus,
+    .login-form select:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    }
+
+    .login-form button {
+      padding: 12px;
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .login-form button:hover {
+      background: var(--accent-silver);
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      margin: 5% auto;
+      padding: 30px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: var(--shadow);
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-content h2 {
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+      border-bottom: 2px solid var(--accent-gold);
+      padding-bottom: 10px;
+    }
+
+    .close {
+      color: var(--text-muted);
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .close:hover {
+      color: var(--accent-gold);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    }
+
+    .availability-grid {
+      display: grid;
+      grid-template-columns: 1fr repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .availability-grid label:first-child {
+      font-weight: 600;
+      color: var(--accent-gold);
+    }
+
+    .availability-grid .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+
+    .calendar-day {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .calendar-day:hover {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+    }
+
+    .calendar-day.selected {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+    }
+
+    .time-slots {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .time-slot {
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .time-slot:hover,
+    .time-slot.selected {
+      background: var(--accent-gold);
+      color: var(--bg-primary);
+    }
+
+    .swap-list {
+      list-style: none;
+      margin-bottom: 20px;
+    }
+
+    .swap-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .swap-item .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .audit-log {
+      max-height: 300px;
+      overflow-y: auto;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .audit-log li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+    }
+
+    .audit-log li:last-child {
+      border-bottom: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 10px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+
+      .main-panels {
+        grid-template-columns: 1fr;
+      }
+
+      .detailed-panels {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-panel {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .modal-content {
+        margin: 10% auto;
+        padding: 20px;
+        width: 95%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .schedule-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="app-container" id="app-container" style="display: none;">
+  <!-- Login Screen -->
+  <div id="login-container" class="login-container">
+    <div class="login-card">
+      <h2>SMARTSHIFT</h2>
+      <p class="subtitle">Intelligent Employee Scheduling</p>
+
+      <div class="login-tabs">
+        <div class="login-tab active" data-role="employee">EMPLOYEE</div>
+        <div class="login-tab" data-role="manager">ADMINISTRATOR</div>
+      </div>
+
+      <div class="login-form">
+        <input type="hidden" id="role" value="employee">
+
+        <label for="username">Employee Number</label>
+        <input type="text" id="username" placeholder="e.g. EMP-0042">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password">
+
+        <button id="login-btn" class="btn btn-primary">Login</button>
+        <p id="login-error" class="error-message"></p>
+
+        <p style="font-size: 0.85rem; color: #ffa8b1; margin-top: 8px;">Demo: EMP-0001 / pass123 | Admin: admin@smartshift.com / admin123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-container" class="app-container" style="display: none;">
     <header>
-      <div class="brand-container">
-        <img class="brand-logo" src="https://img.icons8.com/external-kiranshastry-lineal-color-kiranshastry/80/undefined/external-clock-time-management-kiranshastry-lineal-color-kiranshastry.png" alt="Smart Shift Scheduling Logo" />
+      <div class="brand">
+        <img src="https://img.icons8.com/external-kiranshastry-lineal-color-kiranshastry/64/undefined/external-clock-time-management-kiranshastry-lineal-color-kiranshastry.png" alt="SmartShift Logo">
         <div>
-          <h1>Smart Shift Scheduling</h1>
-          <p class="brand-tagline">Premium gold-mode workforce optimization</p>
+          <h1>SmartShift</h1>
+          <p>AI-Powered Workforce Optimization</p>
         </div>
       </div>
       <div class="header-actions">
-        <button id="notificationBtn">🔔</button>
-        <button id="themeSwitcher">🌓</button>
-        <button id="logoutBtn">Logout</button>
+        <button id="logout-btn" class="btn">Logout</button>
       </div>
     </header>
 
-    <main>
-      <section class="stats-panel">
-        <div class="stat-card">
-          <h2>Pending Swaps</h2>
-          <p id="pendingSwapsCount">0</p>
-        </div>
-        <div class="stat-card">
-          <h2>Open Shifts</h2>
-          <p id="openShiftsCount">0</p>
-        </div>
-        <div class="stat-card">
-          <h2>Coverage Rate</h2>
-          <p id="coverageRate">0%</p>
-        </div>
-      </section>
-
-      <section class="main-panels">
-        <div class="panel" id="employeePanel">
-          <h2>Employee</h2>
-          <div class="panel-grid">
-            <div class="panel-item">
-              <h3>Availability</h3>
-              <button class="openModalBtn" data-target="#availabilityModal">Manage</button>
-            </div>
-            <div class="panel-item">
-              <h3>My Shifts</h3>
-              <button class="openModalBtn" data-target="#scheduleModal">View</button>
-            </div>
-            <div class="panel-item">
-              <h3>Swap Request</h3>
-              <button class="openModalBtn" data-target="#swapModal">Propose</button>
-            </div>
-            <div class="panel-item">
-              <h3>Audit Trail</h3>
-              <button class="openModalBtn" data-target="#auditModal">Review</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" id="managerPanel" style="display: none;">
-          <h2>Manager</h2>
-          <div class="panel-grid">
-            <div class="panel-item">
-              <h3>Team Calendar</h3>
-              <button class="openModalBtn" data-target="#teamCalendarModal">Open</button>
-            </div>
-            <div class="panel-item">
-              <h3>Approve Swaps</h3>
-              <button class="openModalBtn" data-target="#swapApprovalModal">Open</button>
-            </div>
-            <div class="panel-item">
-              <h3>Coverage Heatmap</h3>
-              <button class="openModalBtn" data-target="#coverageModal">Analyze</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" id="ownerPanel" style="display: none;">
-          <h2>Owner</h2>
-          <div class="panel-grid">
-            <div class="panel-item">
-              <h3>Business Report</h3>
-              <button class="openModalBtn" data-target="#businessReportModal">View</button>
-            </div>
-            <div class="panel-item">
-              <h3>Billing</h3>
-              <button class="openModalBtn" data-target="#billingModal">Discount</button>
-            </div>
-            <div class="panel-item">
-              <h3>System Summary</h3>
-              <button class="openModalBtn" data-target="#systemSummaryModal">Open</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="detailed-panels">
-        <div class="panel detail" id="availabilityPanel">
-          <h2>Detailed Availability</h2>
-          <ul id="availabilityList"></ul>
-          <button class="openModalBtn" data-target="#availabilityModal">Edit Availability</button>
-        </div>
-        <div class="panel detail" id="schedulePanel">
-          <h2>Weekly Shift Schedule</h2>
-          <div id="scheduleGrid" class="schedule-grid"></div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Login View -->
-  <div class="login-container" id="login-container">
-    <div class="login-card">
-      <h2>Smart Shift Scheduling</h2>
-      <div class="login-form">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Your username" />
-
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Your password" />
-
-        <label for="userType">Role</label>
-        <select id="userType">
-          <option value="employee">Employee</option>
-          <option value="admin">Manager</option>
-          <option value="owner">Owner</option>
-        </select>
-
-        <button id="loginBtn">Login</button>
-        <p id="loginError" class="error-message"></p>
+    <section class="stats-panel">
+      <div class="stat-card">
+        <h3>Pending Swaps</h3>
+        <p id="pending-swaps">0</p>
       </div>
-    </div>
+      <div class="stat-card">
+        <h3>Open Shifts</h3>
+        <p id="open-shifts">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Coverage Rate</h3>
+        <p id="coverage-rate">0%</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Employees</h3>
+        <p id="total-employees">0</p>
+      </div>
+    </section>
+
+    <section class="main-panels">
+      <div id="employee-panel" class="panel">
+        <h2>Employee Dashboard</h2>
+        <div class="panel-grid">
+          <div class="panel-item" onclick="openModal('availability-modal')">
+            <h3>Availability</h3>
+            <p>Manage your schedule</p>
+          </div>
+          <div class="panel-item" onclick="openModal('schedule-modal')">
+            <h3>My Shifts</h3>
+            <p>View assigned shifts</p>
+          </div>
+          <div class="panel-item" onclick="openModal('swap-modal')">
+            <h3>Swap Request</h3>
+            <p>Request shift swaps</p>
+          </div>
+          <div class="panel-item" onclick="openModal('audit-modal')">
+            <h3>Audit Trail</h3>
+            <p>View activity log</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="manager-panel" class="panel" style="display: none;">
+        <h2>Manager Dashboard</h2>
+        <div class="panel-grid">
+          <div class="panel-item" onclick="openModal('team-calendar-modal')">
+            <h3>Team Calendar</h3>
+            <p>View team schedules</p>
+          </div>
+          <div class="panel-item" onclick="openModal('swap-approval-modal')">
+            <h3>Approve Swaps</h3>
+            <p>Manage swap requests</p>
+          </div>
+          <div class="panel-item" onclick="openModal('coverage-modal')">
+            <h3>Coverage Heatmap</h3>
+            <p>Analyze coverage</p>
+          </div>
+          <div class="panel-item" onclick="runScheduler()">
+            <h3>Run Scheduler</h3>
+            <p>Generate optimal schedule</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="owner-panel" class="panel" style="display: none;">
+        <h2>Owner Dashboard</h2>
+        <div class="panel-grid">
+          <div class="panel-item" onclick="openModal('business-report-modal')">
+            <h3>Business Report</h3>
+            <p>View analytics</p>
+          </div>
+          <div class="panel-item" onclick="openModal('billing-modal')">
+            <h3>Billing</h3>
+            <p>Manage subscriptions</p>
+          </div>
+          <div class="panel-item" onclick="openModal('system-summary-modal')">
+            <h3>System Summary</h3>
+            <p>Platform overview</p>
+          </div>
+          <div class="panel-item" onclick="openModal('employee-add-modal')">
+            <h3>Add Employee</h3>
+            <p>Onboard new staff</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="detailed-panels">
+      <div class="detail-panel">
+        <h2>Detailed Availability</h2>
+        <ul id="availability-list" class="availability-list"></ul>
+        <button class="btn btn-primary" onclick="openModal('availability-modal')">Edit Availability</button>
+      </div>
+      <div class="detail-panel">
+        <h2>Weekly Shift Schedule</h2>
+        <div id="schedule-grid" class="schedule-grid"></div>
+      </div>
+    </section>
   </div>
 
   <!-- Modals -->
-  <div id="accountModal" class="modal">
+  <div id="availability-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#accountModal">×</span>
-      <h2>Account Overview</h2>
-      <p id="accountDetails"></p>
-    </div>
-  </div>
-
-  <div id="profileModal" class="modal">
-    <div class="modal-content">
-      <span class="closeBtn" data-target="#profileModal">×</span>
-      <h2>Profile & Preferences</h2>
-      <p>Update your profile details. (Simulation-mode)</p>
-    </div>
-  </div>
-
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <span class="closeBtn" data-target="#settingsModal">×</span>
-      <h2>System Settings</h2>
-      <p>General system settings and team options can be changed here.</p>
-    </div>
-  </div>
-
-  <div id="dayModal" class="modal">
-    <div class="modal-content">
-      <span class="closeBtn" data-target="#dayModal">×</span>
-      <h2>Select Day and Time</h2>
-      <p>Pick a day to modify your shift availability.</p>
-    </div>
-  </div>
-
-  <div id="availabilityModal" class="modal">
-    <div class="modal-content">
-      <span class="closeBtn" data-target="#availabilityModal">×</span>
+      <span class="close" onclick="closeModal('availability-modal')">&times;</span>
       <h2>Update Availability</h2>
-      <div class="availability-grid" id="availabilityForm"></div>
-      <button id="saveAvailabilityBtn">Save Availability</button>
+      <div class="availability-grid">
+        <label>Day</label>
+        <label>Morning</label>
+        <label>Afternoon</label>
+        <label>Evening</label>
+        <label>Monday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="mon-morning"> Morning</label>
+          <label><input type="checkbox" id="mon-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="mon-evening"> Evening</label>
+        </div>
+        <label>Tuesday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="tue-morning"> Morning</label>
+          <label><input type="checkbox" id="tue-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="tue-evening"> Evening</label>
+        </div>
+        <label>Wednesday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="wed-morning"> Morning</label>
+          <label><input type="checkbox" id="wed-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="wed-evening"> Evening</label>
+        </div>
+        <label>Thursday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="thu-morning"> Morning</label>
+          <label><input type="checkbox" id="thu-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="thu-evening"> Evening</label>
+        </div>
+        <label>Friday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="fri-morning"> Morning</label>
+          <label><input type="checkbox" id="fri-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="fri-evening"> Evening</label>
+        </div>
+        <label>Saturday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="sat-morning"> Morning</label>
+          <label><input type="checkbox" id="sat-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="sat-evening"> Evening</label>
+        </div>
+        <label>Sunday</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="sun-morning"> Morning</label>
+          <label><input type="checkbox" id="sun-afternoon"> Afternoon</label>
+          <label><input type="checkbox" id="sun-evening"> Evening</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveAvailability()">Save Availability</button>
     </div>
   </div>
 
-  <div id="employeeAddModal" class="modal">
+  <div id="schedule-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#employeeAddModal">×</span>
-      <h2>Add New Employee</h2>
-      <label for="newEmployeeName">Name</label>
-      <input type="text" id="newEmployeeName" placeholder="Type name" />
-      <label for="newEmployeeRole">Role</label>
-      <select id="newEmployeeRole">
-        <option value="employee">Employee</option>
-        <option value="admin">Manager</option>
-        <option value="owner">Owner</option>
-      </select>
-      <button id="saveNewEmployeeBtn">Add Employee</button>
+      <span class="close" onclick="closeModal('schedule-modal')">&times;</span>
+      <h2>My Shift Schedule</h2>
+      <div id="my-schedule"></div>
     </div>
   </div>
 
-  <div id="swapModal" class="modal">
+  <div id="swap-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#swapModal">×</span>
-      <h2>Request a Shift Swap</h2>
-      <label for="swapWithEmployee">Swap with</label>
-      <select id="swapWithEmployee"></select>
-      <label for="swapDate">Date</label>
-      <input type="date" id="swapDate" />
-      <button id="requestSwapBtn">Request Swap</button>
+      <span class="close" onclick="closeModal('swap-modal')">&times;</span>
+      <h2>Request Shift Swap</h2>
+      <div class="form-group">
+        <label for="swap-employee">Swap with Employee</label>
+        <select id="swap-employee"></select>
+      </div>
+      <div class="form-group">
+        <label for="swap-date">Select Date</label>
+        <input type="date" id="swap-date">
+      </div>
+      <div class="form-group">
+        <label for="swap-time">Select Time Slot</label>
+        <select id="swap-time">
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="requestSwap()">Request Swap</button>
     </div>
   </div>
 
-  <div id="billingModal" class="modal">
+  <div id="audit-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#billingModal">×</span>
-      <h2>Billing & Discounts (Owner)</h2>
-      <p>Apply discounts and check your billing usage.</p>
-    </div>
-  </div>
-
-  <div id="auditModal" class="modal">
-    <div class="modal-content">
-      <span class="closeBtn" data-target="#auditModal">×</span>
+      <span class="close" onclick="closeModal('audit-modal')">&times;</span>
       <h2>Audit Trail</h2>
-      <ul id="auditLogs"></ul>
+      <ul id="audit-log" class="audit-log"></ul>
     </div>
   </div>
 
-  <div id="teamCalendarModal" class="modal">
+  <div id="team-calendar-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#teamCalendarModal">×</span>
+      <span class="close" onclick="closeModal('team-calendar-modal')">&times;</span>
       <h2>Team Calendar</h2>
-      <p>View adjustable team shifts and time-offs.</p>
+      <div id="team-calendar"></div>
     </div>
   </div>
 
-  <div id="swapApprovalModal" class="modal">
+  <div id="swap-approval-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#swapApprovalModal">×</span>
+      <span class="close" onclick="closeModal('swap-approval-modal')">&times;</span>
       <h2>Swap Approvals</h2>
-      <ul id="swapRequestsList"></ul>
+      <ul id="swap-list" class="swap-list"></ul>
     </div>
   </div>
 
-  <div id="coverageModal" class="modal">
+  <div id="coverage-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#coverageModal">×</span>
+      <span class="close" onclick="closeModal('coverage-modal')">&times;</span>
       <h2>Coverage Heatmap</h2>
-      <p>Coverage insights and risk levels.</p>
+      <div id="coverage-heatmap"></div>
     </div>
   </div>
 
-  <div id="businessReportModal" class="modal">
+  <div id="business-report-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#businessReportModal">×</span>
-      <h2>Business Reports</h2>
-      <p>Key metrics and optimization suggestions.</p>
+      <span class="close" onclick="closeModal('business-report-modal')">&times;</span>
+      <h2>Business Report</h2>
+      <div id="business-report"></div>
     </div>
   </div>
 
-  <div id="systemSummaryModal" class="modal">
+  <div id="billing-modal" class="modal">
     <div class="modal-content">
-      <span class="closeBtn" data-target="#systemSummaryModal">×</span>
+      <span class="close" onclick="closeModal('billing-modal')">&times;</span>
+      <h2>Billing & Subscriptions</h2>
+      <div id="billing-info"></div>
+    </div>
+  </div>
+
+  <div id="system-summary-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('system-summary-modal')">&times;</span>
       <h2>System Summary</h2>
-      <p>Performance and resource pool summary.</p>
+      <div id="system-summary"></div>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <div id="employee-add-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('employee-add-modal')">&times;</span>
+      <h2>Add New Employee</h2>
+      <div class="form-group">
+        <label for="new-employee-name">Name</label>
+        <input type="text" id="new-employee-name" placeholder="Enter employee name">
+      </div>
+      <div class="form-group">
+        <label for="new-employee-role">Role</label>
+        <select id="new-employee-role">
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+          <option value="owner">Owner</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="addEmployee()">Add Employee</button>
+    </div>
+  </div>
+
   <script>
+    // State management
+    let state = {
+      currentUser: null,
+      employees: JSON.parse(localStorage.getItem('employees')) || [
+        { id: 1, username: 'alice', name: 'Alice Johnson', role: 'employee' },
+        { id: 2, username: 'bob', name: 'Bob Smith', role: 'employee' },
+        { id: 3, username: 'charlie', name: 'Charlie Brown', role: 'manager' },
+        { id: 4, username: 'diana', name: 'Diana Prince', role: 'owner' }
+      ],
+      availability: JSON.parse(localStorage.getItem('availability')) || {},
+      schedule: JSON.parse(localStorage.getItem('schedule')) || [],
+      swaps: JSON.parse(localStorage.getItem('swaps')) || [],
+      auditLog: JSON.parse(localStorage.getItem('auditLog')) || []
+    };
+
     const defaultUsers = [
-      { username: 'employee', password: 'employee', role: 'employee' },
-      { username: 'employee2', password: 'employee2', role: 'employee' },
-      { username: 'manager', password: 'manager', role: 'admin' },
-      { username: 'owner', password: 'owner', role: 'owner' },
+      { username: 'alice', password: 'pass', role: 'employee' },
+      { username: 'bob', password: 'pass', role: 'employee' },
+      { username: 'charlie', password: 'pass', role: 'manager' },
+      { username: 'diana', password: 'pass', role: 'owner' }
     ];
 
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timeSlots = ['Morning', 'Afternoon', 'Evening'];
 
-    let currentUser = null;
-    let availabilityData = JSON.parse(localStorage.getItem('availabilityData')) || {};
-    let scheduleData = JSON.parse(localStorage.getItem('scheduleData')) || [];
-    let swapRequests = JSON.parse(localStorage.getItem('swapRequests')) || [];
-    let auditTrail = JSON.parse(localStorage.getItem('auditTrail')) || [];
-    let theme = localStorage.getItem('theme') || 'light';
-
-    const appContainer = document.getElementById('app-container');
+    // DOM elements
     const loginContainer = document.getElementById('login-container');
+    const appContainer = document.getElementById('app-container');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const roleSelect = document.getElementById('role');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginTabs = document.querySelectorAll('.login-tab');
 
-    const usernameEl = document.getElementById('username');
-    const passwordEl = document.getElementById('password');
-    const userTypeEl = document.getElementById('userType');
-    const loginBtn = document.getElementById('loginBtn');
-    const loginError = document.getElementById('loginError');
+    // Initialize app
+    function init() {
+      loginBtn.addEventListener('click', loginEmployee);
+      logoutBtn.addEventListener('click', logout);
 
-    const pendingSwapsCount = document.getElementById('pendingSwapsCount');
-    const openShiftsCount = document.getElementById('openShiftsCount');
-    const coverageRate = document.getElementById('coverageRate');
+      loginTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          loginTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          roleSelect.value = tab.dataset.role;
+        });
+      });
 
-    const employeePanel = document.getElementById('employeePanel');
-    const managerPanel = document.getElementById('managerPanel');
-    const ownerPanel = document.getElementById('ownerPanel');
-
-    const availabilityList = document.getElementById('availabilityList');
-    const scheduleGrid = document.getElementById('scheduleGrid');
-
-    const accountDetails = document.getElementById('accountDetails');
-    const swapWithEmployee = document.getElementById('swapWithEmployee');
-    const swapDate = document.getElementById('swapDate');
-
-    const auditLogs = document.getElementById('auditLogs');
-    const swapRequestsList = document.getElementById('swapRequestsList');
-
-    const themeSwitcher = document.getElementById('themeSwitcher');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    const availabilityForm = document.getElementById('availabilityForm');
-    const saveAvailabilityBtn = document.getElementById('saveAvailabilityBtn');
-
-    const newEmployeeName = document.getElementById('newEmployeeName');
-    const newEmployeeRole = document.getElementById('newEmployeeRole');
-    const saveNewEmployeeBtn = document.getElementById('saveNewEmployeeBtn');
-
-    const requestSwapBtn = document.getElementById('requestSwapBtn');
-
-    const modals = document.querySelectorAll('.modal');
-    const openModalBtns = document.querySelectorAll('.openModalBtn');
-    const closeModalBtns = document.querySelectorAll('.closeBtn');
-
-    const scheduleDataStorageKey = 'unifiedScheduleData';
-
-    const employees = JSON.parse(localStorage.getItem('employees')) || [
-      { id: 1, username: 'employee', name: 'Alice', role: 'employee' },
-      { id: 2, username: 'employee2', name: 'Bob', role: 'employee' },
-      { id: 3, username: 'manager', name: 'Charlie', role: 'admin' },
-      { id: 4, username: 'owner', name: 'Dana', role: 'owner' },
-    ];
-
-    const wipeData = false;
-
-    if (wipeData) {
-      localStorage.clear();
-      location.reload();
+      loadState();
+      checkAutoLogin();
+      renderDashboard();
     }
 
-    if (localStorage.getItem('employeeIndex')) {
-      document.getElementById('selectedEmployeeIndex').value = localStorage.getItem('employeeIndex');
-    }
+    // Login functionality
+    function loginEmployee() {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const role = roleSelect.value;
 
-    function applyTheme() {
-      document.body.className = theme;
-      localStorage.setItem('theme', theme);
-      themeSwitcher.textContent = theme === 'light' ? '🌙' : '☀️';
-    }
-
-    function getRoleSpecificData() {
-      const role = currentUser.role;
-      employeePanel.style.display = role === 'employee' ? 'block' : 'none';
-      managerPanel.style.display = role === 'admin' ? 'block' : 'none';
-      ownerPanel.style.display = role === 'owner' ? 'block' : 'none';
-    }
-
-    function getEmployeeName(username) {
-      const employee = employees.find((emp) => emp.username === username);
-      return employee ? employee.name : username;
-    }
-
-    function openModal(modalId) {
-      const modal = document.querySelector(modalId);
-      if (modal) {
-        modal.style.display = 'flex';
+      const user = defaultUsers.find(u => u.username === username && u.password === password && u.role === role);
+      if (user) {
+        state.currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        loginContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        renderDashboard();
+        addAuditLog(`${user.username} logged in`);
+      } else {
+        loginError.textContent = 'Invalid credentials';
       }
     }
 
-    function closeModal(modalId) {
-      const modal = document.querySelector(modalId);
-      if (modal) {
-        modal.style.display = 'none';
+    function logout() {
+      state.currentUser = null;
+      localStorage.removeItem('currentUser');
+      appContainer.style.display = 'none';
+      loginContainer.style.display = 'flex';
+    }
+
+    function checkAutoLogin() {
+      const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (savedUser) {
+        state.currentUser = savedUser;
+        loginContainer.style.display = 'none';
+        appContainer.style.display = 'block';
       }
     }
 
-    function updateStatusCounts() {
-      pendingSwapsCount.textContent = swapRequests.length;
-      const openShifts = scheduleData.filter((slot) => !slot.assignedTo).length;
-      openShiftsCount.textContent = openShifts;
-      const coveredShifts = scheduleData.length - openShifts;
-      coverageRate.textContent = scheduleData.length ? `${Math.round((coveredShifts / scheduleData.length) * 100)}%` : '0%';
+    // Dashboard rendering
+    function renderDashboard() {
+      if (!state.currentUser) return;
+
+      renderStats();
+      renderRolePanels();
+      renderAvailability();
+      renderSchedule();
+      renderAuditLog();
+      renderSwapList();
+    }
+
+    function renderStats() {
+      document.getElementById('pending-swaps').textContent = state.swaps.filter(s => s.status === 'pending').length;
+      document.getElementById('open-shifts').textContent = state.schedule.filter(s => !s.assignedTo).length;
+      const totalShifts = state.schedule.length;
+      const coveredShifts = totalShifts - state.schedule.filter(s => !s.assignedTo).length;
+      document.getElementById('coverage-rate').textContent = totalShifts ? `${Math.round((coveredShifts / totalShifts) * 100)}%` : '0%';
+      document.getElementById('total-employees').textContent = state.employees.length;
+    }
+
+    function renderRolePanels() {
+      const role = state.currentUser.role;
+      document.getElementById('employee-panel').style.display = role === 'employee' ? 'block' : 'none';
+      document.getElementById('manager-panel').style.display = role === 'manager' ? 'block' : 'none';
+      document.getElementById('owner-panel').style.display = role === 'owner' ? 'block' : 'none';
     }
 
     function renderAvailability() {
-      availabilityList.innerHTML = '';
-      const currentUserAvailability = availabilityData[currentUser.username] || {};
+      const list = document.getElementById('availability-list');
+      list.innerHTML = '';
+      const userAvailability = state.availability[state.currentUser.username] || {};
 
-      daysOfWeek.forEach((day) => {
+      days.forEach(day => {
         const li = document.createElement('li');
-        const dayValue = currentUserAvailability[day];
-        li.textContent = `${day}: ${Array.isArray(dayValue) && dayValue.length > 0 ? dayValue.join(', ') : 'Not set'}`;
-        availabilityList.appendChild(li);
+        const slots = userAvailability[day] || [];
+        li.innerHTML = `<strong>${day}:</strong> ${slots.length ? slots.join(', ') : 'Not set'}`;
+        list.appendChild(li);
       });
     }
 
     function renderSchedule() {
-      scheduleGrid.innerHTML = '';
+      const grid = document.getElementById('schedule-grid');
+      grid.innerHTML = '';
 
-      const userSchedule = scheduleData.filter((shift) => shift.assignedTo === currentUser.username || currentUser.role !== 'employee');
+      const userSchedule = state.schedule.filter(shift => 
+        shift.assignedTo === state.currentUser.username || state.currentUser.role !== 'employee'
+      );
 
       if (userSchedule.length === 0) {
-        scheduleGrid.textContent = 'No shifts found. Generate a schedule in the manager panel for the best planning.';
+        grid.innerHTML = '<p>No shifts scheduled. Run the scheduler to generate a schedule.</p>';
         return;
       }
 
-      userSchedule.forEach((shift) => {
-        const shiftDiv = document.createElement('div');
-        shiftDiv.className = 'shift-card';
-        const assignedName = shift.assignedTo ? getEmployeeName(shift.assignedTo) : 'Open';
-        shiftDiv.innerHTML = `<strong>${shift.day} ${shift.time}</strong><br/>${assignedName} (${shift.role})`;
-        scheduleGrid.appendChild(shiftDiv);
+      userSchedule.forEach(shift => {
+        const card = document.createElement('div');
+        card.className = 'shift-card';
+        const employee = state.employees.find(e => e.username === shift.assignedTo);
+        card.innerHTML = `
+          <strong>${shift.day} ${shift.timeSlot}</strong><br/>
+          ${employee ? employee.name : 'Unassigned'} (${shift.role})
+        `;
+        grid.appendChild(card);
       });
     }
 
-    function updateSwapRequestsForAdmin() {
-      swapRequestsList.innerHTML = '';
-      swapRequests.forEach((request, index) => {
+    function renderAuditLog() {
+      const log = document.getElementById('audit-log');
+      log.innerHTML = '';
+      state.auditLog.slice(-20).forEach(entry => {
         const li = document.createElement('li');
-        li.textContent = `${request.from} requested swap on ${request.day} ${request.time} with ${request.to}`;
-
-        const approveBtn = document.createElement('button');
-        approveBtn.textContent = 'Approve';
-        approveBtn.onclick = () => handleSwapDecision(index, true);
-
-        const rejectBtn = document.createElement('button');
-        rejectBtn.textContent = 'Reject';
-        rejectBtn.onclick = () => handleSwapDecision(index, false);
-
-        li.appendChild(approveBtn);
-        li.appendChild(rejectBtn);
-
-        swapRequestsList.appendChild(li);
+        li.textContent = entry;
+        log.appendChild(li);
       });
     }
 
-    function handleSwapDecision(index, approved) {
-      const request = swapRequests[index];
-      const logMessage = `${approved ? 'Approved' : 'Rejected'} swap request from ${request.from} to ${request.to} for ${request.day} ${request.time}`;
-      auditTrail.push(logMessage);
-      auditLogs.innerHTML += `<li>${logMessage}</li>`;
+    function renderSwapList() {
+      const list = document.getElementById('swap-list');
+      list.innerHTML = '';
 
-      if (approved) {
-        const fromShift = scheduleData.find((slot) => slot.assignedTo === request.from && slot.day === request.day && slot.time === request.time);
-        const toShift = scheduleData.find((slot) => slot.assignedTo === request.to && slot.day === request.day && slot.time === request.time);
-
-        if (fromShift && toShift) {
-          [fromShift.assignedTo, toShift.assignedTo] = [toShift.assignedTo, fromShift.assignedTo];
-          localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-          renderSchedule();
-        }
-      }
-      swapRequests.splice(index, 1);
-      localStorage.setItem('swapRequests', JSON.stringify(swapRequests));
-      updateStatusCounts();
-      updateSwapRequestsForAdmin();
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
-    }
-
-    function renderAuditTrail() {
-      auditLogs.innerHTML = '';
-      auditTrail.forEach((log) => {
+      state.swaps.forEach((swap, index) => {
         const li = document.createElement('li');
-        li.textContent = log;
-        auditLogs.appendChild(li);
+        li.className = 'swap-item';
+        li.innerHTML = `
+          <div>
+            <strong>${swap.requester}</strong> wants to swap ${swap.day} ${swap.timeSlot} with <strong>${swap.target}</strong>
+            <br><small>Status: ${swap.status}</small>
+          </div>
+          <div class="actions">
+            ${swap.status === 'pending' ? `
+              <button class="btn" onclick="approveSwap(${index})">Approve</button>
+              <button class="btn" onclick="rejectSwap(${index})">Reject</button>
+            ` : ''}
+          </div>
+        `;
+        list.appendChild(li);
       });
     }
 
-    function generateScheduleBasedOnAvailability() {
-      scheduleData = [];
-      employees.forEach((employee) => {
-        const userAvailability = availabilityData[employee.username] || {};
-        daysOfWeek.forEach((day) => {
-          timeSlots.forEach((time) => {
-            if (userAvailability[day] && userAvailability[day].includes(time)) {
-              scheduleData.push({ day, time, assignedTo: employee.username, role: employee.role });
-            }
-          });
-        });
-      });
-
-      localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-      updateStatusCounts();
-      renderSchedule();
+    // Modal functions
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+      if (modalId === 'availability-modal') loadAvailabilityForm();
+      if (modalId === 'schedule-modal') renderMySchedule();
+      if (modalId === 'swap-modal') loadSwapForm();
+      if (modalId === 'team-calendar-modal') renderTeamCalendar();
+      if (modalId === 'coverage-modal') renderCoverageHeatmap();
+      if (modalId === 'business-report-modal') renderBusinessReport();
+      if (modalId === 'billing-modal') renderBillingInfo();
+      if (modalId === 'system-summary-modal') renderSystemSummary();
     }
 
-    function initAvailabilityForm() {
-      availabilityForm.innerHTML = '';
-      daysOfWeek.forEach((day) => {
-        const dayRow = document.createElement('div');
-        dayRow.className = 'availability-row';
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
 
-        const dayLabel = document.createElement('label');
-        dayLabel.textContent = day;
-        dayRow.appendChild(dayLabel);
-
-        timeSlots.forEach((time) => {
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.id = `${day}-${time}`;
-          input.dataset.day = day;
-          input.dataset.time = time;
-
-          const label = document.createElement('label');
-          label.textContent = time;
-          label.htmlFor = input.id;
-
-          dayRow.appendChild(input);
-          dayRow.appendChild(label);
-        });
-
-        availabilityForm.appendChild(dayRow);
-      });
-
-      const savedAvailability = availabilityData[currentUser.username] || {};
-      daysOfWeek.forEach((day) => {
-        (savedAvailability[day] || []).forEach((time) => {
-          const input = document.getElementById(`${day}-${time}`);
-          if (input) input.checked = true;
+    // Availability management
+    function loadAvailabilityForm() {
+      const userAvailability = state.availability[state.currentUser.username] || {};
+      days.forEach(day => {
+        const daySlots = userAvailability[day] || [];
+        timeSlots.forEach(slot => {
+          const checkbox = document.getElementById(`${day.toLowerCase().slice(0,3)}-${slot.toLowerCase()}`);
+          if (checkbox) checkbox.checked = daySlots.includes(slot);
         });
       });
     }
 
     function saveAvailability() {
-      const newAvailability = {};
-      daysOfWeek.forEach((day) => {
-        newAvailability[day] = [];
-        timeSlots.forEach((time) => {
-          const input = document.getElementById(`${day}-${time}`);
-          if (input && input.checked) {
-            newAvailability[day].push(time);
-          }
+      const availability = {};
+      days.forEach(day => {
+        availability[day] = [];
+        timeSlots.forEach(slot => {
+          const checkbox = document.getElementById(`${day.toLowerCase().slice(0,3)}-${slot.toLowerCase()}`);
+          if (checkbox && checkbox.checked) availability[day].push(slot);
         });
       });
 
-      availabilityData[currentUser.username] = newAvailability;
-      localStorage.setItem('availabilityData', JSON.stringify(availabilityData));
-      auditTrail.push(`${currentUser.username} updated availability.`);
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      state.availability[state.currentUser.username] = availability;
+      saveState();
       renderAvailability();
-      closeModal('#availabilityModal');
-      generateScheduleBasedOnAvailability();
+      addAuditLog(`${state.currentUser.username} updated availability`);
+      closeModal('availability-modal');
     }
 
-    function showAccountOverview() {
-      accountDetails.innerHTML = `<strong>User:</strong> ${currentUser.username}<br/><strong>Role:</strong> ${currentUser.role}`;
-      openModal('#accountModal');
+    // Schedule management
+    function renderMySchedule() {
+      const container = document.getElementById('my-schedule');
+      container.innerHTML = '';
+
+      const myShifts = state.schedule.filter(shift => shift.assignedTo === state.currentUser.username);
+      if (myShifts.length === 0) {
+        container.innerHTML = '<p>No shifts assigned to you.</p>';
+        return;
+      }
+
+      myShifts.forEach(shift => {
+        const div = document.createElement('div');
+        div.className = 'shift-card';
+        div.innerHTML = `<strong>${shift.day} ${shift.timeSlot}</strong>`;
+        container.appendChild(div);
+      });
     }
 
-    function setupEmployeeSelector() {
-      swapWithEmployee.innerHTML = '';
-      employees
-        .filter((emp) => emp.username !== currentUser.username)
-        .forEach((employee) => {
+    function runScheduler() {
+      // Simple scheduling algorithm
+      state.schedule = [];
+      state.employees.forEach(employee => {
+        const availability = state.availability[employee.username] || {};
+        days.forEach(day => {
+          const slots = availability[day] || [];
+          slots.forEach(slot => {
+            if (Math.random() > 0.5) { // Random assignment for demo
+              state.schedule.push({
+                day,
+                timeSlot: slot,
+                assignedTo: employee.username,
+                role: employee.role
+              });
+            }
+          });
+        });
+      });
+      saveState();
+      renderDashboard();
+      addAuditLog('Scheduler run completed');
+    }
+
+    // Swap management
+    function loadSwapForm() {
+      const select = document.getElementById('swap-employee');
+      select.innerHTML = '';
+      state.employees
+        .filter(e => e.username !== state.currentUser.username)
+        .forEach(employee => {
           const option = document.createElement('option');
           option.value = employee.username;
-          option.textContent = `${employee.name} (${employee.role})`;
-          swapWithEmployee.appendChild(option);
+          option.textContent = employee.name;
+          select.appendChild(option);
         });
     }
 
-    function handleSwapRequest() {
-      const selectedEmployee = swapWithEmployee.value;
-      const selectedDate = swapDate.value;
-      if (!selectedEmployee || !selectedDate) {
-        alert('Please select an employee and date');
-        return;
-      }
+    function requestSwap() {
+      const target = document.getElementById('swap-employee').value;
+      const day = new Date(document.getElementById('swap-date').value).toLocaleDateString('en-US', { weekday: 'long' });
+      const timeSlot = document.getElementById('swap-time').value;
 
-      const dayName = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
-      const timeSlot = timeSlots[Math.floor(Math.random() * timeSlots.length)];
-
-      swapRequests.push({ from: currentUser.username, to: selectedEmployee, day: dayName, time: timeSlot });
-      localStorage.setItem('swapRequests', JSON.stringify(swapRequests));
-      auditTrail.push(`${currentUser.username} requested a swap with ${selectedEmployee} for ${dayName} ${timeSlot}.`);
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
-      updateStatusCounts();
-      updateSwapRequestsForAdmin();
-      closeModal('#swapModal');
-    }
-
-    function addEmployee() {
-      const name = newEmployeeName.value.trim();
-      const role = newEmployeeRole.value;
-      if (name === '') {
-        alert('Name cannot be empty');
-        return;
-      }
-
-      employees.push({ id: employees.length + 1, name, role });
-      localStorage.setItem('employees', JSON.stringify(employees));
-      auditTrail.push(`New employee added: ${name} (${role})`);
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
-      newEmployeeName.value = '';
-      newEmployeeRole.value = 'employee';
-      closeModal('#employeeAddModal');
-      renderAvailability();
-      renderSchedule();
-    }
-
-    function renderDashboard() {
-      updateStatusCounts();
-      renderAvailability();
-      renderSchedule();
-      renderAuditTrail();
-      updateSwapRequestsForAdmin();
-    }
-
-    function loginUser() {
-      const username = usernameEl.value.trim();
-      const password = passwordEl.value;
-      const userType = userTypeEl.value;
-
-      const user = defaultUsers.find(
-        (u) => u.username === username && u.password === password && u.role === userType
-      );
-
-      if (!user) {
-        loginError.textContent = 'Invalid username, password, or role.';
-        return;
-      }
-
-      currentUser = user;
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      loginContainer.style.display = 'none';
-      appContainer.style.display = 'block';
-      getRoleSpecificData();
+      state.swaps.push({
+        requester: state.currentUser.username,
+        target,
+        day,
+        timeSlot,
+        status: 'pending'
+      });
+      saveState();
       renderDashboard();
-      setupEmployeeSelector();
-      applyTheme();
-      auditTrail.push(`${currentUser.username} logged in as ${currentUser.role}`);
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      addAuditLog(`${state.currentUser.username} requested swap with ${target}`);
+      closeModal('swap-modal');
     }
 
-    function createEnergyEfficientSchedule() {
-      const requiredSlots = 30;
-      const scheduled = [];
+    function approveSwap(index) {
+      const swap = state.swaps[index];
+      // Find and swap the shifts
+      const requesterShift = state.schedule.find(s => s.assignedTo === swap.requester && s.day === swap.day && s.timeSlot === swap.timeSlot);
+      const targetShift = state.schedule.find(s => s.assignedTo === swap.target && s.day === swap.day && s.timeSlot === swap.timeSlot);
 
-      const shuffledEmployees = [...employees].sort(() => Math.random() - 0.5);
-      for (let i = 0; i < requiredSlots; i++) {
-        const day = daysOfWeek[i % daysOfWeek.length];
-        const time = timeSlots[Math.floor((i % timeSlots.length) / 1)];
-        const employee = shuffledEmployees[i % shuffledEmployees.length];
-
-        scheduled.push({ day, time, assignedTo: employee.name, role: employee.role });
+      if (requesterShift && targetShift) {
+        [requesterShift.assignedTo, targetShift.assignedTo] = [targetShift.assignedTo, requesterShift.assignedTo];
       }
 
-      scheduleData = scheduled;
-      localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-      renderSchedule();
-      updateStatusCounts();
-      auditTrail.push('Energy-efficient schedule created.');
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
+      swap.status = 'approved';
+      saveState();
+      renderDashboard();
+      addAuditLog(`Swap approved: ${swap.requester} ↔ ${swap.target}`);
     }
 
-    function sortEmployeesByCoverage() {
-      const coverageRate = employees.map((employee) => {
-        const employeeShifts = scheduleData.filter((shift) => shift.assignedTo === employee.name);
-        return { employee: employee.name, coverage: employeeShifts.length };
-      });
-
-      coverageRate.sort((a, b) => b.coverage - a.coverage);
-      return coverageRate;
+    function rejectSwap(index) {
+      state.swaps[index].status = 'rejected';
+      saveState();
+      renderDashboard();
+      addAuditLog(`Swap rejected: ${state.swaps[index].requester} ↔ ${state.swaps[index].target}`);
     }
 
-    function showSortingInsights() {
-      const sorted = sortEmployeesByCoverage();
-      const result = sorted.map((item) => `${item.employee}: ${item.coverage} shifts`).join(', ');
-      alert(`Employee coverage insights:\n${result}`);
-      auditTrail.push('Coverage insight checked.');
-      localStorage.setItem('auditTrail', JSON.stringify(auditTrail));
-    }
+    // Employee management
+    function addEmployee() {
+      const name = document.getElementById('new-employee-name').value.trim();
+      const role = document.getElementById('new-employee-role').value;
 
-    function setupInitialData() {
-      if (!localStorage.getItem('currentUser')) {
-        localStorage.setItem('currentUser', JSON.stringify(null));
-      }
-      if (!localStorage.getItem('availabilityData')) {
-        localStorage.setItem('availabilityData', JSON.stringify({}));
-      }
-      if (!localStorage.getItem('scheduleData')) {
-        localStorage.setItem('scheduleData', JSON.stringify([]));
-      }
-      if (!localStorage.getItem('swapRequests')) {
-        localStorage.setItem('swapRequests', JSON.stringify([]));
-      }
-      if (!localStorage.getItem('auditTrail')) {
-        localStorage.setItem('auditTrail', JSON.stringify([]));
-      }
-      if (!localStorage.getItem('employees')) {
-        localStorage.setItem('employees', JSON.stringify(employees));
-      }
-      applyTheme();
-    }
-
-    closeModalBtns.forEach((btn) => {
-      btn.addEventListener('click', (event) => {
-        const target = event.target.dataset.target;
-        closeModal(target);
-      });
-    });
-
-    openModalBtns.forEach((btn) => {
-      btn.addEventListener('click', (event) => {
-        const target = event.target.dataset.target;
-        openModal(target);
-      });
-    });
-
-    saveAvailabilityBtn.addEventListener('click', saveAvailability);
-
-    requestSwapBtn.addEventListener('click', handleSwapRequest);
-
-    newEmployeeName.addEventListener('input', () => {
-      saveNewEmployeeBtn.disabled = newEmployeeName.value.trim() === '';
-    });
-
-    saveNewEmployeeBtn.addEventListener('click', addEmployee);
-
-    themeSwitcher.addEventListener('click', () => {
-      theme = theme === 'light' ? 'dark' : 'light';
-      applyTheme();
-    });
-
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('currentUser');
-      currentUser = null;
-      appContainer.style.display = 'none';
-      loginContainer.style.display = 'flex';
-      usernameEl.value = '';
-      passwordEl.value = '';
-    });
-
-    document.getElementById('loginBtn').addEventListener('click', loginUser);
-
-    setupInitialData();
-
-    function initAutoLogin() {
-      const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (savedUser && savedUser.username) {
-        currentUser = savedUser;
-        loginContainer.style.display = 'none';
-        appContainer.style.display = 'block';
-        getRoleSpecificData();
+      if (name) {
+        const newEmployee = {
+          id: Date.now(),
+          username: name.toLowerCase().replace(/\s+/g, ''),
+          name,
+          role
+        };
+        state.employees.push(newEmployee);
+        saveState();
         renderDashboard();
-        setupEmployeeSelector();
+        addAuditLog(`New employee added: ${name}`);
+        closeModal('employee-add-modal');
       }
     }
 
-    document.getElementById('accountModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('accountModal')) {
-        closeModal('#accountModal');
-      }
-    });
+    // Reporting functions
+    function renderTeamCalendar() {
+      const container = document.getElementById('team-calendar');
+      container.innerHTML = '<p>Team calendar view would show all employee schedules here.</p>';
+    }
 
-    document.getElementById('profileModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('profileModal')) {
-        closeModal('#profileModal');
-      }
-    });
+    function renderCoverageHeatmap() {
+      const container = document.getElementById('coverage-heatmap');
+      container.innerHTML = '<p>Coverage heatmap visualization would appear here.</p>';
+    }
 
-    document.getElementById('settingsModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('settingsModal')) {
-        closeModal('#settingsModal');
-      }
-    });
+    function renderBusinessReport() {
+      const container = document.getElementById('business-report');
+      container.innerHTML = `
+        <p><strong>Total Employees:</strong> ${state.employees.length}</p>
+        <p><strong>Total Shifts:</strong> ${state.schedule.length}</p>
+        <p><strong>Pending Swaps:</strong> ${state.swaps.filter(s => s.status === 'pending').length}</p>
+      `;
+    }
 
-    document.getElementById('dayModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('dayModal')) {
-        closeModal('#dayModal');
-      }
-    });
+    function renderBillingInfo() {
+      const container = document.getElementById('billing-info');
+      container.innerHTML = '<p>Billing and subscription management interface.</p>';
+    }
 
-    document.getElementById('availabilityModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('availabilityModal')) {
-        closeModal('#availabilityModal');
-      }
-    });
+    function renderSystemSummary() {
+      const container = document.getElementById('system-summary');
+      container.innerHTML = `
+        <p><strong>System Status:</strong> Operational</p>
+        <p><strong>Data Storage:</strong> localStorage</p>
+        <p><strong>Last Backup:</strong> N/A</p>
+      `;
+    }
 
-    document.getElementById('employeeAddModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('employeeAddModal')) {
-        closeModal('#employeeAddModal');
-      }
-    });
+    // Utility functions
+    function addAuditLog(message) {
+      state.auditLog.push(`${new Date().toLocaleString()}: ${message}`);
+      saveState();
+      renderAuditLog();
+    }
 
-    document.getElementById('swapModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('swapModal')) {
-        closeModal('#swapModal');
-      }
-    });
+    function saveState() {
+      localStorage.setItem('employees', JSON.stringify(state.employees));
+      localStorage.setItem('availability', JSON.stringify(state.availability));
+      localStorage.setItem('schedule', JSON.stringify(state.schedule));
+      localStorage.setItem('swaps', JSON.stringify(state.swaps));
+      localStorage.setItem('auditLog', JSON.stringify(state.auditLog));
+    }
 
-    document.getElementById('billingModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('billingModal')) {
-        closeModal('#billingModal');
-      }
-    });
+    function loadState() {
+      state.employees = JSON.parse(localStorage.getItem('employees')) || state.employees;
+      state.availability = JSON.parse(localStorage.getItem('availability')) || {};
+      state.schedule = JSON.parse(localStorage.getItem('schedule')) || [];
+      state.swaps = JSON.parse(localStorage.getItem('swaps')) || [];
+      state.auditLog = JSON.parse(localStorage.getItem('auditLog')) || [];
+    }
 
-    document.getElementById('auditModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('auditModal')) {
-        closeModal('#auditModal');
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
       }
-    });
+    }
 
-    document.getElementById('teamCalendarModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('teamCalendarModal')) {
-        closeModal('#teamCalendarModal');
-      }
-    });
-
-    document.getElementById('swapApprovalModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('swapApprovalModal')) {
-        closeModal('#swapApprovalModal');
-      }
-    });
-
-    document.getElementById('coverageModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('coverageModal')) {
-        closeModal('#coverageModal');
-      }
-    });
-
-    document.getElementById('businessReportModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('businessReportModal')) {
-        closeModal('#businessReportModal');
-      }
-    });
-
-    document.getElementById('systemSummaryModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('systemSummaryModal')) {
-        closeModal('#systemSummaryModal');
-      }
-    });
-
-    initAutoLogin();
+    // Initialize the app
+    init();
   </script>
 </body>
 </html>
